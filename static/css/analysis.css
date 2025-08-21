@@ -1,0 +1,607 @@
+/* Styles spécifiques à la page d'analyse */
+
+.analysis-intro {
+    background-color: #f9f9f9;
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #ff4d79;
+}
+
+.analysis-intro p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.features-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.feature-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    border-top: 3px solid #ff4d79;
+}
+
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ff4d79, #ff8a5c);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.feature-card h3 {
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.feature-content p {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.feature-visual {
+    height: 100px;
+    margin-top: 15px;
+    position: relative;
+}
+
+/* Styles spécifiques aux visualisations */
+.age-chart {
+    width: 100%;
+    height: 80px;
+    background-color: #f5f7fa;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.age-chart::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: linear-gradient(90deg, #ff4d79, #ff8a5c);
+    animation: ageFill 2s forwards;
+}
+
+@keyframes ageFill {
+    to { height: 70%; }
+}
+
+.gender-stats {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100%;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+}
+
+.stat-bar {
+    width: 100%;
+    background: linear-gradient(to top, #ff4d79, #ff8a5c);
+    border-radius: 5px 5px 0 0;
+    transition: height 1s ease;
+}
+
+.stat span {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+}
+
+.stat.male .stat-bar {
+    background: linear-gradient(to top, #4d79ff, #5c8aff);
+}
+
+.pain-types {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pain-type {
+    padding: 8px 12px;
+    background-color: #f5f7fa;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.pain-type:hover {
+    background-color: #ff4d79;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.bp-meter {
+    width: 120px;
+    height: 80px;
+    margin: 0 auto;
+    background-color: #f5f7fa;
+    border-radius: 60px 60px 0 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.bp-needle {
+    position: absolute;
+    width: 3px;
+    height: 50px;
+    background-color: #ff4d79;
+    bottom: 10px;
+    left: 50%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-30deg);
+    animation: bpNeedle 3s infinite alternate;
+}
+
+@keyframes bpNeedle {
+    0% { transform: translateX(-50%) rotate(-30deg); }
+    100% { transform: translateX(-50%) rotate(30deg); }
+}
+
+.bp-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+    font-size: 10px;
+    color: #666;
+    position: absolute;
+    bottom: -20px;
+    width: 100%;
+}
+
+.cholesterol-scale {
+    display: flex;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.scale-bar {
+    flex: 1;
+}
+
+.scale-bar.normal {
+    background-color: #70e000;
+}
+
+.scale-bar.borderline {
+    background-color: #ffaa00;
+}
+
+.scale-bar.high {
+    background-color: #ff4d79;
+}
+
+.scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #666;
+}
+
+.glucose-level {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    height: 100%;
+    align-items: flex-end;
+}
+
+.glucose-drop {
+    width: 30px;
+    border-radius: 0 0 15px 15px;
+    background-color: #4d79ff;
+    position: relative;
+    animation: glucoseDrop 2s infinite alternate;
+}
+
+.glucose-drop[data-level="normal"] {
+    height: 40px;
+    animation-delay: 0s;
+}
+
+.glucose-drop[data-level="elevated"] {
+    height: 70px;
+    background-color: #ff4d79;
+    animation-delay: 0.5s;
+}
+
+@keyframes glucoseDrop {
+    0% { height: 40px; }
+    100% { height: 70px; }
+}
+
+.ecg-line {
+    width: 100%;
+    height: 60px;
+    background-color: #f5f7fa;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ecg-line::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ff4d79;
+    animation: ecgLine 3s linear infinite;
+}
+
+.ecg-line.active::before {
+    animation: ecgLineActive 3s linear infinite;
+}
+
+@keyframes ecgLine {
+    to { width: 100%; }
+}
+
+@keyframes ecgLineActive {
+    0% { width: 0; left: 0; height: 2px; }
+    20% { height: 2px; }
+    25% { height: 30px; }
+    30% { height: 2px; }
+    50% { height: 2px; }
+    55% { height: 20px; }
+    60% { height: 2px; }
+    100% { width: 100%; left: 100%; height: 2px; }
+}
+
+.heart-rate-animation {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    height: 100%;
+    align-items: center;
+}
+
+.pulse-dot {
+    width: 15px;
+    height: 15px;
+    background-color: #ff4d79;
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+.pulse-dot.pulse {
+    transform: scale(1.5);
+    opacity: 1;
+    transition: all 0.5s ease;
+}
+
+.exercise-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    height: 100%;
+    align-items: center;
+}
+
+.exercise-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.exercise-icon.no-pain {
+    background-color: rgba(112, 224, 0, 0.1);
+    color: #70e000;
+}
+
+.exercise-icon.pain {
+    background-color: rgba(255, 77, 121, 0.1);
+    color: #ff4d79;
+}
+
+.exercise-icon:hover {
+    transform: scale(1.2);
+}
+
+.st-depression-graph {
+    width: 100%;
+    height: 60px;
+    background-color: #f5f7fa;
+    border-radius: 5px;
+    position: relative;
+}
+
+.st-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #ff4d79;
+}
+
+.st-line::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 40%;
+    width: 20%;
+    height: 2px;
+    background-color: #ff4d79;
+    transform: translateY(-15px);
+}
+
+.slope-types {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    height: 100%;
+    align-items: center;
+}
+
+.slope {
+    width: 40px;
+    height: 40px;
+    position: relative;
+}
+
+.slope::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #ff4d79;
+}
+
+.slope.up::before {
+    transform: rotate(-15deg);
+}
+
+.slope.flat::before {
+    transform: rotate(0deg);
+}
+
+.slope.down::before {
+    transform: rotate(15deg);
+}
+
+.vessels-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    height: 100%;
+    align-items: center;
+}
+
+.vessel {
+    width: 20px;
+    height: 60px;
+    background-color: #f5f7fa;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.vessel::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #4d79ff;
+}
+
+.vessel[data-status="blocked"]::after {
+    height: 30%;
+    background-color: #ff4d79;
+}
+
+.blood-cells {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    height: 100%;
+    align-items: center;
+}
+
+.blood-cell {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ff4d79;
+    position: relative;
+    animation: float 3s infinite ease-in-out;
+}
+
+.blood-cell.abnormal {
+    background-color: #4d79ff;
+    animation-delay: 0.5s;
+    border-radius: 15px;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.medical-explanation {
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.medical-explanation h3 {
+    color: #333;
+    font-size: 22px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.medical-explanation h3 i {
+    color: #ff4d79;
+}
+
+.medical-explanation p {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.interaction-model {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.model-node {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    text-align: center;
+    position: relative;
+}
+
+.model-node[data-risk="low"] {
+    background-color: #70e000;
+}
+
+.model-node[data-risk="medium"] {
+    background-color: #ffaa00;
+}
+
+.model-node[data-risk="high"] {
+    background-color: #ff4d79;
+}
+
+.node-icon {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.model-connector {
+    width: 50px;
+    height: 5px;
+    background-color: #f0f0f0;
+    position: relative;
+}
+
+.model-connector::after {
+    content: "→";
+    position: absolute;
+    right: -15px;
+    top: -10px;
+    color: #999;
+    font-size: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .features-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .interaction-model {
+        flex-direction: column;
+    }
+    
+    .model-connector {
+        width: 5px;
+        height: 50px;
+    }
+    
+    .model-connector::after {
+        content: "↓";
+        right: -5px;
+        top: auto;
+        bottom: -15px;
+    }
+}
+/* Style du nom d'utilisateur */
+#username-display {
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+/* En-tête du menu déroulant */
+.user-menu-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-menu-header i {
+    font-size: 20px;
+    color: #6c757d;
+}
+
+#menu-username {
+    font-weight: 600;
+    color: #333;
+}
+

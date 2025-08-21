@@ -1,0 +1,29 @@
+{
+  "meribai abdeldjalil": {
+    "last_prediction": {
+      "date": "2025-08-20T18:32:27.625833",
+      "heartRate": 100,
+      "bloodPressure": "140/80",
+      "cholesterol": 200,
+      "glucose": 140,
+      "age": 100,
+      "prediction": 1,
+      "probability": 0.5063142685160964,
+      "all_form_data": {
+        "age": 100.0,
+        "sex": 1.0,
+        "cp": 4.0,
+        "trestbps": 140.0,
+        "chol": 200.0,
+        "fbs": 1.0,
+        "restecg": 1.0,
+        "thalach": 100.0,
+        "exang": 0.0,
+        "oldpeak": 0.7,
+        "slope": 2.0,
+        "ca": 0.0,
+        "thal": 6.0
+      }
+    }
+  }
+}

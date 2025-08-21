@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartAI - Analyse des Caractéristiques</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analysis.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='images/icone.png') }}" type="image/png">
+</head>
+
+<body>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">Heart<span>AI</span></div>
+            <div class="sidebar-icon"><i class="fas fa-heartbeat"></i></div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="tabs">
+                <a href="/" class="tab">Mon Cœur</a>
+                <a href="/analysis" class="tab active">En savoir plus</a>
+                <a href="/predict" class="tab">Prédiction</a>
+                <a href="/chatbot" class="tab" data-route="chatbot">Discussion</a>
+            </div>
+            <div class="user-controls">
+                <div class="user-btn" id="user-btn">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name" id="username-display">Mon Compte</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="section-title">
+                Analyse des <br><span>Caractéristiques Médicales</span>
+            </div>
+
+            <div class="analysis-intro">
+                <p>Découvrez les caractéristiques médicales utilisées par notre IA pour évaluer votre santé cardiaque. Chaque indicateur joue un rôle crucial dans le diagnostic.</p>
+            </div>
+
+            <div class="features-container">
+                <!-- Feature 1 - Age -->
+                <div class="feature-card" data-feature="age">
+                    <div class="feature-icon">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <h3>Âge</h3>
+                    <div class="feature-content">
+                        <p>Le risque de maladie cardiaque augmente avec l'âge. Les hommes de plus de 45 ans et les femmes de plus de 55 ans présentent un risque accru.</p>
+                        <div class="feature-visual">
+                            <div class="age-chart"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 2 - Sex -->
+                <div class="feature-card" data-feature="sex">
+                    <div class="feature-icon">
+                        <i class="fas fa-venus-mars"></i>
+                    </div>
+                    <h3>Sexe</h3>
+                    <div class="feature-content">
+                        <p>Les hommes sont généralement plus à risque que les femmes, bien que le risque pour les femmes augmente après la ménopause.</p>
+                        <div class="feature-visual">
+                            <div class="gender-stats">
+                                <div class="stat male">
+                                    <div class="stat-bar" style="height: 70%;"></div>
+                                    <span>Hommes</span>
+                                </div>
+                                <div class="stat female">
+                                    <div class="stat-bar" style="height: 50%;"></div>
+                                    <span>Femmes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 3 - Chest Pain -->
+                <div class="feature-card" data-feature="cp">
+                    <div class="feature-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Type de Douleur Thoracique</h3>
+                    <div class="feature-content">
+                        <p>4 types de douleurs thoraciques sont évalués : angine typique, angine atypique, douleur non-angineuse et asymptomatique.</p>
+                        <div class="feature-visual">
+                            <div class="pain-types">
+                                <div class="pain-type" data-type="1">Typique</div>
+                                <div class="pain-type" data-type="2">Atypique</div>
+                                <div class="pain-type" data-type="3">Non-angineuse</div>
+                                <div class="pain-type" data-type="4">Asymptomatique</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 4 - Blood Pressure -->
+                <div class="feature-card" data-feature="trestbps">
+                    <div class="feature-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <h3>Pression Artérielle</h3>
+                    <div class="feature-content">
+                        <p>Une pression artérielle élevée (hypertension) endommage les artères et augmente considérablement le risque cardiaque.</p>
+                        <div class="feature-visual">
+                            <div class="bp-meter">
+                                <div class="bp-needle"></div>
+                                <div class="bp-labels">
+                                    <span>90</span>
+                                    <span>120</span>
+                                    <span>140+</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 5 - Cholesterol -->
+                <div class="feature-card" data-feature="chol">
+                    <div class="feature-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>Cholestérol</h3>
+                    <div class="feature-content">
+                        <p>Un taux de cholestérol élevé peut entraîner l'accumulation de plaques dans les artères, réduisant le flux sanguin.</p>
+                        <div class="feature-visual">
+                            <div class="cholesterol-scale">
+                                <div class="scale-bar normal"></div>
+                                <div class="scale-bar borderline"></div>
+                                <div class="scale-bar high"></div>
+                            </div>
+                            <div class="scale-labels">
+                                <span>&lt;200</span>
+                                <span>200-239</span>
+                                <span>240+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 6 - Blood Sugar -->
+                <div class="feature-card" data-feature="fbs">
+                    <div class="feature-icon">
+                        <i class="fas fa-syringe"></i>
+                    </div>
+                    <h3>Glycémie à Jeun</h3>
+                    <div class="feature-content">
+                        <p>Une glycémie élevée (>120mg/dl) peut indiquer un diabète, un facteur de risque majeur pour les maladies cardiaques.</p>
+                        <div class="feature-visual">
+                            <div class="glucose-level">
+                                <div class="glucose-drop" data-level="normal"></div>
+                                <div class="glucose-drop" data-level="elevated"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 7 - ECG -->
+                <div class="feature-card" data-feature="restecg">
+                    <div class="feature-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Résultats ECG</h3>
+                    <div class="feature-content">
+                        <p>L'électrocardiogramme mesure l'activité électrique du cœur et peut détecter des anomalies comme l'hypertrophie ventriculaire.</p>
+                        <div class="feature-visual">
+                            <div class="ecg-line"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 8 - Max Heart Rate -->
+                <div class="feature-card" data-feature="thalach">
+                    <div class="feature-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <h3>Fréquence Cardiaque Maximale</h3>
+                    <div class="feature-content">
+                        <p>Une fréquence cardiaque maximale anormale pendant l'exercice peut indiquer un problème cardiaque sous-jacent.</p>
+                        <div class="feature-visual">
+                            <div class="heart-rate-animation">
+                                <div class="pulse-dot"></div>
+                                <div class="pulse-dot"></div>
+                                <div class="pulse-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 9 - Exercise Induced Angina -->
+                <div class="feature-card" data-feature="exang">
+                    <div class="feature-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h3>Angine Induite par l'Exercice</h3>
+                    <div class="feature-content">
+                        <p>Une douleur thoracique pendant l'effort (angine) suggère que le cœur ne reçoit pas assez de sang riche en oxygène.</p>
+                        <div class="feature-visual">
+                            <div class="exercise-indicator">
+                                <div class="exercise-icon no-pain">
+                                    <i class="fas fa-smile"></i>
+                                </div>
+                                <div class="exercise-icon pain">
+                                    <i class="fas fa-frown"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 10 - ST Depression -->
+                <div class="feature-card" data-feature="oldpeak">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Dépression ST</h3>
+                    <div class="feature-content">
+                        <p>Une dépression du segment ST sur l'ECG après exercice peut indiquer une ischémie myocardique (manque d'oxygène au cœur).</p>
+                        <div class="feature-visual">
+                            <div class="st-depression-graph">
+                                <div class="st-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 11 - Slope -->
+                <div class="feature-card" data-feature="slope">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-area"></i>
+                    </div>
+                    <h3>Pente du Segment ST</h3>
+                    <div class="feature-content">
+                        <p>La pente du segment ST pendant l'effort maximal : montante (normal), plate ou descendante (anormal).</p>
+                        <div class="feature-visual">
+                            <div class="slope-types">
+                                <div class="slope up"></div>
+                                <div class="slope flat"></div>
+                                <div class="slope down"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 12 - Vessels -->
+                <div class="feature-card" data-feature="ca">
+                    <div class="feature-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>Vaisseaux Colorés</h3>
+                    <div class="feature-content">
+                        <p>Nombre de vaisseaux principaux colorés par fluoroscopie (0-3). Plus de vaisseaux bloqués signifie un risque plus élevé.</p>
+                        <div class="feature-visual">
+                            <div class="vessels-container">
+                                <div class="vessel" data-status="healthy"></div>
+                                <div class="vessel" data-status="blocked"></div>
+                                <div class="vessel" data-status="healthy"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 13 - Thalassemia -->
+                <div class="feature-card" data-feature="thal">
+                    <div class="feature-icon">
+                        <i class="fas fa-dna"></i>
+                    </div>
+                    <h3>Thalassémie</h3>
+                    <div class="feature-content">
+                        <p>Un trouble sanguin héréditaire qui peut affecter la capacité du sang à transporter l'oxygène vers le cœur.</p>
+                        <div class="feature-visual">
+                            <div class="blood-cells">
+                                <div class="blood-cell normal"></div>
+                                <div class="blood-cell abnormal"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="medical-explanation">
+                <h3><i class="fas fa-lightbulb"></i> Comment ces caractéristiques interagissent</h3>
+                <p>Notre algorithme analyse la combinaison complexe de ces facteurs pour évaluer votre risque cardiaque. Par exemple, une pression artérielle élevée combinée à un cholestérol élevé et à des antécédents familiaux multiplie le risque bien au-delà de la simple somme des facteurs individuels.</p>
+                
+                <div class="interaction-model">
+                    <div class="model-node" data-risk="low">
+                        <span>Facteurs isolés</span>
+                        <div class="node-icon"><i class="fas fa-check"></i></div>
+                    </div>
+                    <div class="model-connector"></div>
+                    <div class="model-node" data-risk="medium">
+                        <span>2-3 facteurs</span>
+                        <div class="node-icon"><i class="fas fa-exclamation"></i></div>
+                    </div>
+                    <div class="model-connector"></div>
+                    <div class="model-node" data-risk="high">
+                        <span>4+ facteurs</span>
+                        <div class="node-icon"><i class="fas fa-times"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page analysis chargée');
+            checkAuthenticationStatus();
+            setupUserMenu();
+            initializeAnalysisPage();
+        });
+
+        function checkAuthenticationStatus() {
+            console.log('Vérification de l authentification...');
+            
+            fetch('/check_auth')
+                .then(response => {
+                    console.log('Réponse reçue:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Erreur HTTP: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Données reçues:', data);
+                    if (data.authenticated) {
+                        console.log('Utilisateur authentifié:', data.username);
+                        if (data.username) {
+                            document.getElementById('username-display').textContent = data.username;
+                        }
+                    } else {
+                        console.log('Non authentifié, redirection...');
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur de vérification auth:', error);
+                    window.location.href = '/login';
+                });
+        }
+
+        function setupUserMenu() {
+            const userMenu = document.createElement('div');
+            userMenu.className = 'user-menu-compact';
+            userMenu.innerHTML = `
+                <a href="/" class="user-link"><i class="fas fa-user"></i> Mon profil</a>
+                <a href="/analysis" class="user-link"><i class="fas fa-heartbeat"></i> En savoir plus</a>
+                <a href="/predict" class="user-link"><i class="fas fa-chart-line"></i> Prédiction</a>
+                <a href="/chatbot" class="user-link"><i class="fas fa-comments"></i> Discussion</a>
+                <a href="#" class="user-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            `;
+            
+            document.querySelector('.user-controls').appendChild(userMenu);
+
+            const userBtn = document.getElementById('user-btn');
+            userBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                userMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function() {
+                userBtn.classList.remove('active');
+                userMenu.classList.remove('show');
+            });
+
+            userMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch('/logout')
+                    .then(() => {
+                        window.location.href = '/login';
+                    })
+                    .catch(error => {
+                        console.error('Erreur de déconnexion:', error);
+                        window.location.href = '/login';
+                    });
+            });
+        }
+
+        function initializeAnalysisPage() {
+            console.log('Initialisation de la page analysis');
+            
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        }
+    </script>
+</body>
+</html>

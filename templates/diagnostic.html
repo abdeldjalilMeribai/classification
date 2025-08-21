@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartAI - Diagnostic</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='images/icone.png') }}" type="image/png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">Heart<span>AI</span></div>
+            <div class="sidebar-icon"><i class="fas fa-heartbeat"></i></div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="tabs">
+                <a href="/" class="tab">Mon Cœur</a>
+                <a href="/analysis" class="tab">Analyse</a>
+                <a href="#" class="tab active">Diagnostic</a>
+                <a href="/chatbot" class="tab" data-route="chatbot">Discussion</a>
+            </div>
+            <div class="user-controls">
+                <div class="user-btn" id="user-btn">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name" id="username-display">Mon Compte</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="section-title">
+                Résultats<br>de votre analyse cardiaque
+            </div>
+
+            <div class="diagnostic-container">
+                <div class="diagnostic-card">
+                    <div id="diagnostic-result" class="diagnostic-result">
+                        <!-- Sera rempli dynamiquement par JavaScript -->
+                    </div>
+                    
+                    <div class="diagnostic-details">
+                        <div class="diagnostic-section medical-details">
+                            <h3>Détails médicaux</h3>
+                            <div id="medical-values" class="values-grid">
+                                <!-- Sera rempli dynamiquement par JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="diagnostic-section recommendations">
+                            <h3>Recommandations</h3>
+                            <div id="recommendations-list">
+                                <!-- Sera rempli dynamiquement par JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="actions-container">
+                    <button id="new-analysis" class="action-button">
+                        <i class="fas fa-plus-circle"></i> Retour
+                    </button>
+                    <button id="export-pdf" class="action-button secondary">
+                        <i class="fas fa-file-pdf"></i> Exporter en PDF
+                    </button>
+                </div>
+                
+                <div class="diagnostic-footer">
+                    <div class="diagnostic-disclaimer">
+                        Les résultats de cette analyse ne remplacent pas un avis médical professionnel.
+                        Consultez un médecin pour une évaluation complète.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérification d'authentification et récupération du nom
+            checkAuthenticationStatus();
+            
+            // Création du menu compact
+            const userMenu = document.createElement('div');
+            userMenu.className = 'user-menu-compact';
+            userMenu.innerHTML = `
+                <a href="/" class="user-link"><i class="fas fa-user"></i> Mon profil</a>
+                <a href="/analysis" class="user-link"><i class="fas fa-heartbeat"></i> En savoir plus</a>
+                <a href="/predict" class="user-link"><i class="fas fa-chart-line"></i> Prédiction</a>
+                <a href="/chatbot" class="user-link"><i class="fas fa-comments"></i> Discussion</a>
+                <a href="#" class="user-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            `;
+            document.querySelector('.user-controls').appendChild(userMenu);
+
+            // Gestion du bouton utilisateur
+            document.getElementById('user-btn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                userMenu.classList.toggle('show');
+            });
+
+            // Fermeture du menu
+            document.addEventListener('click', function() {
+                document.getElementById('user-btn').classList.remove('active');
+                userMenu.classList.remove('show');
+            });
+
+            userMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Déconnexion
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch('/logout')
+                    .then(() => {
+                        localStorage.removeItem('heartAI_loggedIn');
+                        localStorage.removeItem('heartAI_email');
+                        localStorage.removeItem('heartAI_username');
+                        window.location.href = '/';
+                    })
+                    .catch(error => {
+                        console.error('Erreur de déconnexion:', error);
+                        window.location.href = '/';
+                    });
+            });
+
+            // Récupérer les données de l'URL (paramètres)
+            const urlParams = new URLSearchParams(window.location.search);
+            const data = {};
+            
+            // Extraire toutes les données des paramètres d'URL
+            for (const [key, value] of urlParams.entries()) {
+                data[key] = value;
+            }
+            
+            // Vérifier si nous avons des données à afficher
+            if (data.prediction) {
+                displayDiagnosticResults(data);
+            } else {
+                // Si pas de données, afficher un message d'erreur ou rediriger
+                document.getElementById('diagnostic-result').innerHTML = `
+                    <h3><i class="fas fa-exclamation-circle"></i> Aucune donnée d'analyse</h3>
+                    <p>Veuillez effectuer une analyse depuis la page d'accueil.</p>
+                `;
+            }
+            
+            // Événements des boutons
+            document.getElementById('new-analysis').addEventListener('click', function() {
+                window.location.href = '/'; // Redirection vers la page d'accueil
+            });
+            
+            // Remplacer l'événement actuel du bouton export-pdf
+            document.getElementById('export-pdf').addEventListener('click', function() {
+                exportToPDF();
+            });
+
+            function exportToPDF() {
+                // Afficher un indicateur de chargement
+                const btn = document.getElementById('export-pdf');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération du PDF...';
+                btn.disabled = true;
+
+                // Créer un clone du contenu à exporter (pour éviter les problèmes de style)
+                const element = document.querySelector('.diagnostic-card');
+                const clone = element.cloneNode(true);
+                
+                // Masquer les éléments que vous ne voulez pas dans le PDF
+                const buttonsToHide = clone.querySelectorAll('.action-button');
+                buttonsToHide.forEach(btn => btn.style.display = 'none');
+                
+                // Ajouter le clone au corps du document (temporairement)
+                clone.style.position = 'absolute';
+                clone.style.left = '-9999px';
+                document.body.appendChild(clone);
+
+                // Configuration du PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm'
+                });
+
+                // Utiliser html2canvas pour capturer le contenu
+                html2canvas(clone, {
+                    scale: 2, // Augmenter la qualité
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true
+                }).then(canvas => {
+                    // Supprimer le clone
+                    document.body.removeChild(clone);
+                    
+                    // Dimensions du PDF
+                    const imgData = canvas.toDataURL('image/png');
+                    const imgWidth = doc.internal.pageSize.getWidth() - 20; // Marge de 10mm de chaque côté
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    
+                    // Ajouter l'image au PDF
+                    doc.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                    
+                    // Ajouter des métadonnées
+                    const date = new Date().toLocaleDateString('fr-FR');
+                    doc.setProperties({
+                        title: `Diagnostic HeartAI - ${date}`,
+                        subject: 'Résultats du diagnostic cardiaque',
+                        author: 'HeartAI'
+                    });
+                    
+                    // Ajouter un pied de page
+                    const pageCount = doc.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        doc.setPage(i);
+                        doc.setFontSize(10);
+                        doc.setTextColor(150);
+                        doc.text(
+                            `Page ${i} sur ${pageCount} - HeartAI Diagnostic - ${date}`,
+                            doc.internal.pageSize.getWidth() / 2,
+                            doc.internal.pageSize.getHeight() - 10,
+                            { align: 'center' }
+                        );
+                    }
+                    
+                    // Sauvegarder le PDF
+                    doc.save(`Diagnostic_HeartAI_${date}.pdf`);
+                    
+                    // Restaurer le bouton
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }).catch(error => {
+                    console.error('Erreur lors de la génération du PDF:', error);
+                    document.body.removeChild(clone);
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    alert('Une erreur est survenue lors de la génération du PDF');
+                });
+            }
+            
+        });
+        
+        function checkAuthenticationStatus() {
+            console.log('Vérification de l authentification...');
+            
+            fetch('/check_auth')
+                .then(response => {
+                    console.log('Réponse reçue:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Erreur HTTP: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Données reçues:', data);
+                    if (data.authenticated) {
+                        console.log('Utilisateur authentifié:', data.username);
+                        if (data.username) {
+                            document.getElementById('username-display').textContent = data.username;
+                            localStorage.setItem('heartAI_username', data.username);
+                        }
+                    } else {
+                        console.log('Non authentifié, redirection...');
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur de vérification auth:', error);
+                    window.location.href = '/login';
+                });
+        }
+        
+        function displayDiagnosticResults(data) {
+            // Afficher le diagnostic
+            const diagnosisEl = document.getElementById('diagnostic-result');
+            const valuesEl = document.getElementById('medical-values');
+            const recoEl = document.getElementById('recommendations-list');
+            
+            // Diagnostic
+            if (data.prediction === "1") {
+                diagnosisEl.className = 'diagnostic-result risk-high';
+                diagnosisEl.innerHTML = `
+                    <div class="result-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="result-content">
+                        <h3>Risque cardiovasculaire élevé</h3>
+                        <p>Notre analyse indique un risque significatif de maladie cardiovasculaire.</p>
+                        <div class="probability-indicator">
+                            <div class="probability-bar">
+                                <div class="probability-value" style="width: ${(data.probability * 100).toFixed(1)}%"></div>
+                            </div>
+                            <div class="probability-text">Probabilité: ${(data.probability * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                diagnosisEl.className = 'diagnostic-result risk-low';
+                diagnosisEl.innerHTML = `
+                    <div class="result-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="result-content">
+                        <h3>Risque cardiovasculaire faible</h3>
+                        <p>Notre analyse indique un faible risque de maladie cardiovasculaire.</p>
+                        <div class="probability-indicator">
+                            <div class="probability-bar">
+                                <div class="probability-value" style="width: ${(data.probability * 100).toFixed(1)}%"></div>
+                            </div>
+                            <div class="probability-text">Probabilité: ${(data.probability * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Valeurs médicales
+            valuesEl.innerHTML = `
+                <div class="value-item">
+                    <h5>Âge</h5>
+                    <p>${data.age} ans</p>
+                </div>
+                <div class="value-item">
+                    <h5>Sexe</h5>
+                    <p>${data.sex === "1" ? 'Homme' : 'Femme'}</p>
+                </div>
+                <div class="value-item">
+                    <h5>Pression artérielle</h5>
+                    <p>${data.trestbps} mmHg</p>
+                </div>
+                <div class="value-item">
+                    <h5>Cholestérol</h5>
+                    <p>${data.chol} mg/dl</p>
+                </div>
+                <div class="value-item">
+                    <h5>Glycémie</h5>
+                    <p>${data.fbs === "1" ? 'Élevée' : 'Normale'}</p>
+                </div>
+                <div class="value-item">
+                    <h5>Type de douleur</h5>
+                    <p>${getCpDescription(data.cp)}</p>
+                </div>
+                <div class="value-item">
+                    <h5>Résultat ECG</h5>
+                    <p>${getEcgDescription(data.restecg)}</p>
+                </div>
+                <div class="value-item">
+                    <h5>Fréquence max</h5>
+                    <p>${data.thalach} bpm</p>
+                </div>
+                <div class="value-item">
+                    <h5>Angine d'effort</h5>
+                    <p>${data.exang === "1" ? 'Oui' : 'Non'}</p>
+                </div>
+                <div class="value-item">
+                    <h5>Dépression ST</h5>
+                    <p>${data.oldpeak}</p>
+                </div>
+            `;
+            
+            // Recommandations
+            if (data.prediction === "1") {
+                recoEl.innerHTML = `
+                    <ul class="recommendations-list">
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-user-md"></i></span>
+                            <span class="reco-text">Consultez un cardiologue dès que possible</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-heart-pulse"></i></span>
+                            <span class="reco-text">Surveillez régulièrement votre tension artérielle</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-apple-whole"></i></span>
+                            <span class="reco-text">Adoptez une alimentation équilibrée, faible en matières grasses</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-person-walking"></i></span>
+                            <span class="reco-text">Pratiquez une activité physique modérée et régulière</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-smoking-ban"></i></span>
+                            <span class="reco-text">Évitez le tabac et limitez la consommation d'alcool</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-bed"></i></span>
+                            <span class="reco-text">Assurez-vous d'avoir un sommeil de qualité</span>
+                        </li>
+                    </ul>
+                `;
+            } else {
+                recoEl.innerHTML = `
+                    <ul class="recommendations-list">
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-check-circle"></i></span>
+                            <span class="reco-text">Continuez vos bonnes habitudes de vie</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-calendar-check"></i></span>
+                            <span class="reco-text">Faites un bilan de santé annuel</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-person-running"></i></span>
+                            <span class="reco-text">Maintenez une activité physique régulière</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-carrot"></i></span>
+                            <span class="reco-text">Conservez une alimentation équilibrée</span>
+                        </li>
+                        <li>
+                            <span class="reco-icon"><i class="fas fa-glass-water"></i></span>
+                            <span class="reco-text">Hydratez-vous correctement tout au long de la journée</span>
+                        </li>
+                    </ul>
+                `;
+            }
+        }
+        
+        // Fonctions utilitaires pour les descriptions
+        function getCpDescription(cp) {
+            const types = {
+                "1": "Angine typique",
+                "2": "Angine atypique",
+                "3": "Douleur non angineuse",
+                "4": "Asymptomatique"
+            };
+            return types[cp] || cp;
+        }
+        
+        function getEcgDescription(restecg) {
+            const types = {
+                "0": "Normal",
+                "1": "Anomalie ST-T",
+                "2": "Hypertrophie VG"
+            };
+            return types[restecg] || restecg;
+        }
+    </script>
+</body>
+</html>

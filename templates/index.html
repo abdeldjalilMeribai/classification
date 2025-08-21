@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartAI - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='images/icone.png') }}" type="image/png">
+</head>
+
+<body>
+    <!-- Script pour passer les données de prédiction à JavaScript -->
+    <script>
+        window.lastPredictionData = {% if last_prediction %}{{ last_prediction|tojson }}{% else %}null{% endif %};
+    </script>
+
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">Heart<span>AI</span></div>
+            <div class="sidebar-icon"><i class="fas fa-heartbeat"></i></div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="tabs">
+                <a href="/" class="tab active" data-route="home">Mon Cœur</a>
+                <a href="/analysis" class="tab" data-route="analysis">En savoir plus</a>
+                <a href="/predict" class="tab" data-route="predict">Prédiction</a>
+                <a href="/chatbot" class="tab" data-route="chatbot">Discussion</a>
+            </div>
+            <div class="user-controls">
+                <div class="user-btn" id="user-btn">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name" id="username-display">Mon Compte</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="section-title">
+                Aperçu<br>de votre santé cardiaque
+            </div>
+
+            <div class="heart-visualization">
+                <div class="heart-image">
+                    <div class="heart-visual"></div>
+                    <div class="heart-stats">
+                        <div class="heart-stats-label">Rythme cardiaque</div>
+                        <div class="heart-stats-value" id="main-heart-rate">72 bpm</div>
+                        <svg class="heart-rate-graph" viewBox="0 0 120 60">
+                            <path d="M0,30 Q10,10 20,30 T40,30 T60,30 T80,30 T100,30 T120,30" fill="none" stroke="#0066ff" stroke-width="2"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="health-data">
+                    <div class="heart-condition">
+                        <div class="heart-condition-title">État cardiaque</div>
+                        <div class="heart-metrics">
+                            <div class="metric-card">
+                                <div class="metric-icon"><i class="fas fa-tint"></i></div>
+                                <div class="metric-label">Pression artérielle</div>
+                                <div class="metric-value" id="blood-pressure">120/80</div>
+                                <div class="metric-graph">
+                                    <svg viewBox="0 0 100 60" width="100%" height="60">
+                                        <rect x="0" y="0" width="100%" height="100%" fill="#f9f9f9"></rect>
+                                        <line x1="0" y1="30" x2="100" y2="30" stroke="#ddd" stroke-width="1"></line>
+                                        <path d="M0,30 L10,25 L20,35 L30,20 L40,40 L50,15 L60,45 L70,25 L80,30 L90,20 L100,30" fill="none" stroke="#0066ff" stroke-width="2"></path>
+                                        <line x1="65" y1="0" x2="65" y2="60" stroke="#0066ff" stroke-width="1"></line>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="metric-card extended-metric">
+                                <div class="metric-icon"><i class="fas fa-heartbeat"></i></div>
+                                <div class="metric-label">Rythme cardiaque</div>
+                                <div class="metric-value" id="heart-rate-metric">72 bpm</div>
+                                <div class="metric-graph">
+                                    <svg viewBox="0 0 100 60" width="100%" height="60">
+                                        <path d="M0,30 Q5,10 10,30 T20,30 T30,30 T40,30 T50,30 T60,30 T70,30 T80,30 T90,30 T100,30" fill="none" stroke="white" stroke-width="2"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="heart-metrics" style="margin-top: 15px;">
+                            <div class="metric-card">
+                                <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="metric-label">Cholestérol</div>
+                                <div class="metric-value" id="cholesterol">180 mg/dl</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon"><i class="fas fa-flask"></i></div>
+                                <div class="metric-label">Glucose</div>
+                                <div class="metric-value" id="glucose">90 mg/dl</div>
+                            </div>
+                        </div>
+
+                        <div class="schedule">
+                            <div class="schedule-title">Dernière utilisation</div>
+                            <div class="next-checkup">
+                                <div class="checkup-label">Date de l'analyse</div>
+                                <div class="checkup-date" id="last-analysis-date">Chargement...</div>
+                            </div>
+                            <div class="prediction-status" id="prediction-status" style="margin: 10px 0; padding: 10px; border-radius: 8px; display: none;">
+                                <div class="status-icon"><i class="fas fa-heartbeat"></i></div>
+                                <div class="status-text">
+                                    <div class="status-title">Résultat de la dernière prédiction</div>
+                                    <div class="status-value" id="prediction-result"></div>
+                                </div>
+                            </div>
+                            <button class="consult-button" id="new-prediction-btn">
+                                Nouvelle prédiction <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="body-condition">
+                        <div class="body-condition-title">Notre plateforme vous offre</div>
+                        <div class="body-organs">
+                            <div class="organ-card" id="risk-factors-card">
+                                <div class="organ-label">Facteurs de risque</div>
+                                <div class="organ-icon"><i class="fas fa-info"></i></div>
+                            </div>
+                            <div class="organ-card heart-active" id="prediction-card">
+                                <div class="organ-label">Prédiction</div>
+                                <div class="organ-icon"><i class="fas fa-heartbeat"></i></div>
+                            </div>
+                            <div class="organ-card" id="recommendations-card">
+                                <div class="organ-label">Recommandations</div>
+                                <div class="organ-icon"><i class="fas fa-book-medical"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Variables globales
+        let currentUser = null;
+        let lastAnalysisData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+function initializeApp() {
+    checkAuthenticationStatus();
+    setupUserMenuHandlers();
+    setupDashboardHandlers();
+    loadDashboardData();
+    updateLastAnalysisDate();
+}
+
+function checkAuthenticationStatus() {
+    // Vérifier via l'API si l'utilisateur est connecté
+    fetch('/check_auth')
+        .then(response => response.json())
+        .then(data => {
+            if (data.authenticated) {
+                // Utilisateur connecté
+                console.log('Utilisateur authentifié:', data.username);
+                // Mettre à jour le nom d'utilisateur affiché
+                document.getElementById('username-display').textContent = data.username;
+                loadUserDataFromServer();
+            } else {
+                // Utilisateur non connecté, rediriger vers login
+                console.log('Non authentifié, redirection vers login');
+                window.location.href = '/login';
+            }
+        })
+        .catch(error => {
+            console.error('Erreur de vérification auth:', error);
+            window.location.href = '/login';
+        });
+}
+
+        function loadUserDataFromServer() {
+            fetch('/get_user_data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.last_prediction) {
+                        lastAnalysisData = data.last_prediction;
+                        updateDashboardMetrics(lastAnalysisData);
+                        showPredictionStatus(lastAnalysisData);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des données utilisateur:', error);
+                });
+        }
+
+
+
+        function updateUserDisplay() {
+            document.getElementById('username-display').textContent = currentUser.username;
+        }
+
+        function setupEventListeners() {
+            setupAuthenticationHandlers();
+            setupUserMenuHandlers();
+            setupDashboardHandlers();
+        }
+
+
+        function setupUserMenuHandlers() {
+            // Créer le menu utilisateur
+            const userMenu = createUserMenu();
+            document.querySelector('.user-controls').appendChild(userMenu);
+
+            // Gérer l'ouverture/fermeture du menu
+            document.getElementById('user-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('user-btn').classList.toggle('active');
+                userMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', () => {
+                document.getElementById('user-btn').classList.remove('active');
+                userMenu.classList.remove('show');
+            });
+
+            userMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Déconnexion
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+        }
+
+        function setupDashboardHandlers() {
+            // Bouton nouvelle prédiction
+            document.getElementById('new-prediction-btn').addEventListener('click', () => {
+                window.location.href = '/predict';
+            });
+            document.getElementById('prediction-card').addEventListener('click', () => {
+                window.location.href = '/predict';
+            });
+        }
+
+function createUserMenu() {
+    const userMenu = document.createElement('div');
+    userMenu.className = 'user-menu-compact';
+    userMenu.innerHTML = `
+        <div class="user-menu-links">
+            <a href="/" class="user-link"><i class="fas fa-user"></i> Mon profil</a>
+            <a href="/analysis" class="user-link"><i class="fas fa-heartbeat"></i> En savoir plus</a>
+            <a href="/predict" class="user-link"><i class="fas fa-chart-line"></i> Prédiction</a>
+            <a href="/chatbot" class="user-link"><i class="fas fa-comments"></i> Discussion</a>
+            <a href="#" class="user-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+        </div>
+    `;
+    return userMenu;
+}
+
+
+        function setupPasswordToggle() {
+            document.querySelectorAll('.toggle-password').forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+        }
+
+
+
+
+function handleLogout(e) {
+    e.preventDefault();
+    
+    // Appeler la route de déconnexion du serveur
+    fetch('/logout')
+        .then(() => {
+            // Rediriger vers la page de login après déconnexion
+            window.location.href = '/login';
+        })
+        .catch(error => {
+            console.error('Erreur de déconnexion:', error);
+            window.location.href = '/login';
+        });
+}
+
+        function loadDashboardData() {
+            // Utiliser les données passées par Flask si disponibles
+            if (window.lastPredictionData) {
+                lastAnalysisData = window.lastPredictionData;
+                updateDashboardMetrics(lastAnalysisData);
+                showPredictionStatus(lastAnalysisData);
+            } else {
+                // Données par défaut si aucune prédiction n'existe
+                lastAnalysisData = {
+                    heartRate: 72,
+                    bloodPressure: "120/80",
+                    cholesterol: 180,
+                    glucose: 90,
+                    date: new Date().toISOString()
+                };
+                updateDashboardMetrics(lastAnalysisData);
+            }
+            
+            initializeHeartRateAnimation();
+        }
+
+        function updateDashboardMetrics(data) {
+            if (!data) return;
+            
+            document.getElementById('main-heart-rate').textContent = `${data.heartRate} bpm`;
+            document.getElementById('heart-rate-metric').textContent = `${data.heartRate} bpm`;
+            document.getElementById('blood-pressure').textContent = data.bloodPressure;
+            document.getElementById('cholesterol').textContent = `${data.cholesterol} mg/dl`;
+            document.getElementById('glucose').textContent = `${data.glucose} mg/dl`;
+            
+            updateHeartRateGraph(data.heartRate);
+            
+            // Sauvegarder localement pour référence
+            localStorage.setItem('heartAI_lastAnalysis', JSON.stringify(data));
+        }
+
+        function showPredictionStatus(data) {
+            if (!data || data.prediction === undefined) return;
+            
+            const statusContainer = document.getElementById('prediction-status');
+            const statusResult = document.getElementById('prediction-result');
+            
+            if (data.prediction === 1) {
+                statusContainer.className = 'prediction-status risk-high';
+                statusContainer.style.backgroundColor = '#ffebee';
+                statusContainer.style.borderLeft = '4px solid #f44336';
+                statusResult.innerHTML = `
+                    <span style="color: #d32f2f; font-weight: bold;">Risque élevé détecté</span>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 4px;">
+                        Probabilité: ${(data.probability * 100).toFixed(1)}% - Consultez un médecin
+                    </div>
+                `;
+            } else {
+                statusContainer.className = 'prediction-status risk-low';
+                statusContainer.style.backgroundColor = '#e8f5e8';
+                statusContainer.style.borderLeft = '4px solid #4caf50';
+                statusResult.innerHTML = `
+                    <span style="color: #388e3c; font-weight: bold;">Risque faible détecté</span>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 4px;">
+                        Probabilité: ${(data.probability * 100).toFixed(1)}% - Continuez vos bonnes habitudes
+                    </div>
+                `;
+            }
+            
+            statusContainer.style.display = 'flex';
+        }
+
+        function resetDashboardToDefault() {
+            // Réinitialiser aux valeurs par défaut
+            const defaultData = {
+                heartRate: 72,
+                bloodPressure: "120/80",
+                cholesterol: 180,
+                glucose: 90,
+                date: new Date().toISOString()
+            };
+            
+            updateDashboardMetrics(defaultData);
+            
+            // Cacher le statut de prédiction
+            document.getElementById('prediction-status').style.display = 'none';
+            
+            lastAnalysisData = defaultData;
+        }
+
+        function updateHeartRateGraph(heartRate) {
+            const svgPath = document.querySelector('.heart-rate-graph path');
+            const variability = Math.max(5, heartRate / 10);
+            
+            let pathData = 'M0,30';
+            for (let i = 1; i <= 12; i++) {
+                const x = i * 10;
+                const baseY = 30;
+                const variation = (Math.random() * variability - variability/2);
+                const y = Math.max(10, Math.min(50, baseY + variation));
+                pathData += ` L${x},${y}`;
+            }
+            
+            svgPath.setAttribute('d', pathData);
+        }
+
+        function initializeHeartRateAnimation() {
+            setInterval(() => {
+                if (lastAnalysisData && lastAnalysisData.heartRate) {
+                    updateHeartRateGraph(lastAnalysisData.heartRate);
+                }
+            }, 3000);
+        }
+
+        function updateLastAnalysisDate() {
+            let analysisDate;
+            
+            if (lastAnalysisData && lastAnalysisData.date) {
+                analysisDate = new Date(lastAnalysisData.date);
+            } else {
+                analysisDate = new Date();
+            }
+            
+            const options = { 
+                weekday: 'short', 
+                day: 'numeric', 
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            const formattedDate = analysisDate.toLocaleDateString('fr-FR', options);
+            document.getElementById('last-analysis-date').textContent = formattedDate;
+        }
+
+        function showInfoModal(title, content) {
+            // Créer et afficher une modal d'information
+            const modal = document.createElement('div');
+            modal.className = 'info-modal';
+            modal.innerHTML = `
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button class="modal-close"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${content}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Gestionnaires d'événements pour fermer la modal
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            modal.querySelector('.modal-overlay').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+        }
+
+        // Animation des cartes au survol
+        function initializeCardAnimations() {
+            document.querySelectorAll('.metric-card, .organ-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.05)';
+                });
+            });
+        }
+
+        // Initialiser les animations après le chargement
+        window.addEventListener('load', () => {
+            initializeCardAnimations();
+            
+            // Mettre à jour la date après le chargement complet
+            setTimeout(updateLastAnalysisDate, 500);
+        });
+    </script>
+</body>
+</html>
